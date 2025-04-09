@@ -1,10 +1,16 @@
 package com.weeklyPlanner.controller;
 
 import com.weeklyPlanner.exception.ResourceNotFoundException;
+import com.weeklyPlanner.model.LoginRequest;
 import com.weeklyPlanner.model.User;
 import com.weeklyPlanner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,6 +24,11 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired  // Autowire PasswordEncoder
+    private PasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     // get all users
     @GetMapping("/users")
@@ -25,10 +36,36 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    // create user rest api
+    // Create user rest api
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
+        // Hash the password before saving
+        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);  // Set the hashed password
+
+        // Save the user with the hashed password
         return userRepository.save(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            // Create an authentication token with username and password
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+
+            // Set the authentication in the context
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            return ResponseEntity.ok("Login successful");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
     }
 
     @GetMapping("/users/{userId}")
@@ -42,8 +79,14 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User userInfo) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User either could not be found or does not exist with id: " + userId));
-        user.setUsername(userInfo.getUsername());
-        user.setPassword(userInfo.getPassword());
+
+        // If password is being updated, hash it
+        if (userInfo.getPassword() != null && !userInfo.getPassword().isEmpty()) {
+            String encodedPassword = bCryptPasswordEncoder.encode(userInfo.getPassword());
+            user.setPassword(encodedPassword);  // Set the hashed password
+        }
+
+        user.setUsername(userInfo.getUsername());  // Update username
 
         User updatedUser = userRepository.save(user);
         return ResponseEntity.ok(updatedUser);

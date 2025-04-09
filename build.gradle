@@ -22,14 +22,18 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// Oracle JDBC Driver
 	implementation 'com.oracle.database.jdbc:ojdbc8:19.8.0.0' // Adjust the version according to your Oracle version
+	// Add Spring Security for BCryptPasswordEncoder
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-config'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-orgjson:0.11.5'
 
 	// Spring Boot DevTools (optional, for development)
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2' // Optional, if you need JUnit 5
-	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2' // Optional, if you need JUnit 5
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
