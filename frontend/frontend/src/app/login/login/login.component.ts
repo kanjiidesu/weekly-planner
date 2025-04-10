@@ -1,45 +1,44 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common'; 
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UserService } from '../../service/user.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  standalone: true,  // Mark as standalone
+  standalone: true,
   styleUrls: ['./login.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class LoginComponent {
-  loginRequest = {
-    username: '',
-    password: '',
-  };
+  loginForm = new FormGroup({
+    username: new FormControl<string>(''),
+    password: new FormControl<string>(''),
+  });
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   onLogin() {
-    const loginData = {
-      username: this.loginRequest.username,
-      password: this.loginRequest.password,
-    };
-    
-    this.http
-      .post('http://localhost:8080/api/v1/login', loginData)
-      .subscribe(
-        (response: any) => {
-          // You can handle the login success here, maybe store the token in localStorage
-          console.log('Login successful', response);
-          // Redirect to the dashboard or some other page
-          this.router.navigate(['/dashboard']);
-          localStorage.setItem('authToken', response.token);  // Store JWT in localStorage
+    if (this.loginForm.valid) {
+      const username = this.loginForm.get('username')?.value ?? '';
+      const password = this.loginForm.get('password')?.value ?? '';
+      
+      this.userService.login(username, password).subscribe({
+        next: (response) => {
+          if (response.token) {
+            this.userService.storeToken(response.token);
+            this.router.navigate(['/weekplan']);
+          }
         },
-        (error) => {
-          // Handle login error (wrong credentials, etc.)
-          console.error('Login failed', error);
+        error: (error) => {
+          console.error('Login failed:', error);
           alert('Login failed. Please check your credentials and try again.');
         }
-      );
+      });
+    }
   }
 }

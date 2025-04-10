@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { User } from '../model/user';
 
 @Injectable({
@@ -13,16 +13,18 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   // Login method using Basic Authentication
-  login(username: string, password: string): Observable<any> {
-    // Basic Authentication header
-    const headers = new HttpHeaders().set(
-      'Authorization',
-      'Basic ' + btoa(username + ':' + password)  // Base64 encode username and password
+  login(username: string, password: string): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(this.loginUrl, {
+      username,
+      password
+    }).pipe(
+      tap(response => {
+        if (response.token) {
+          this.storeToken(response.token);
+        }
+      })
     );
-
-    return this.http.post<any>(this.loginUrl, {}, { headers });
   }
-
   // Get all users (requires authentication)
   getAllUsers(): Observable<User[]> {
     const token = localStorage.getItem('authToken'); // Get the token from localStorage

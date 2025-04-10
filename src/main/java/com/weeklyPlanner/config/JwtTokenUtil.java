@@ -2,9 +2,12 @@ package com.weeklyPlanner.config;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.security.Keys;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
@@ -14,14 +17,21 @@ public class JwtTokenUtil {
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10;  // 10 hours expiration
 
     // Generate JWT token based on the user details
-    public String generateToken(UserDetails userDetails) {
-        System.out.println("Generating token for user: " + userDetails.getUsername());
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())  // Set the username as the subject of the token
-                .setIssuedAt(new Date())  // Set the issue date as the current date
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))  // Set expiration date
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)  // Sign the token with the secret key
+    public String generateToken(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        // Generate a secure key for HS512
+        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);  // Automatically generates a secure key with 512 bits
+
+        String token = Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours expiration
+                .signWith(key)  // Use the generated secure key
                 .compact();
+
+        System.out.println("Generated JWT Token: " + token); // Log the token
+        return token;
     }
 
     // Validate the token (Check if it's expired and the user is valid)

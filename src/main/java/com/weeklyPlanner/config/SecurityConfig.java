@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/users/**").authenticated()  // Protect user fetching and other API routes
                                 .anyRequest().permitAll()  // Allow other requests without authentication
                 )
-                .httpBasic(withDefaults());  // Enable HTTP Basic Authentication (can be replaced by JWT)
+                .httpBasic(withDefaults());  // Enable HTTP Basic Authentication
 
         return http.build();  // End the configuration with http.build()
     }

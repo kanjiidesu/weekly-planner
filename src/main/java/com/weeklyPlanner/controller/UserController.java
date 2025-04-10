@@ -1,5 +1,6 @@
 package com.weeklyPlanner.controller;
 
+import com.weeklyPlanner.config.JwtTokenUtil;
 import com.weeklyPlanner.exception.ResourceNotFoundException;
 import com.weeklyPlanner.model.LoginRequest;
 import com.weeklyPlanner.model.User;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +21,7 @@ import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
@@ -29,6 +31,9 @@ public class UserController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     // get all users
     @GetMapping("/users")
@@ -47,10 +52,10 @@ public class UserController {
         return userRepository.save(user);
     }
 
+    // In your controller
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Create an authentication token with username and password
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -58,13 +63,42 @@ public class UserController {
                     )
             );
 
-            // Set the authentication in the context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            return ResponseEntity.ok("Login successful");
+            // Instead of casting, directly use the principal (which should be an instance of UserDetails)
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) principal;
+
+                // Generate JWT token
+                String jwtToken = jwtTokenUtil.generateToken(authentication); // Pass the Authentication object directly
+
+                System.out.println("Attempting to authenticate user: " + loginRequest.getUsername());
+                System.out.println("with password: " + loginRequest.getPassword());
+
+                return ResponseEntity.ok(new JwtResponse(jwtToken));
+            } else {
+                // If the principal is not of type UserDetails, return a failure response
+                return ResponseEntity.status(401).body("Authentication failed: Principal is not a valid UserDetails instance.");
+            }
 
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(401).body("Authentication failed: " + e.getMessage());
+        }
+    }
+
+
+    // Helper class for response
+    public static class JwtResponse {
+        private String token;
+
+        public JwtResponse(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
         }
     }
 
