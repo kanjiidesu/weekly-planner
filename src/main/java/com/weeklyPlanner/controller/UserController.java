@@ -2,8 +2,10 @@ package com.weeklyPlanner.controller;
 
 import com.weeklyPlanner.config.JwtTokenUtil;
 import com.weeklyPlanner.exception.ResourceNotFoundException;
+import com.weeklyPlanner.model.Day;
 import com.weeklyPlanner.model.LoginRequest;
 import com.weeklyPlanner.model.User;
+import com.weeklyPlanner.repository.DayRepository;
 import com.weeklyPlanner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,9 @@ public class UserController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    private DayRepository dayRepository;
+
     // get all users
     @GetMapping("/users")
     public List<User> getAllUsers(){
@@ -48,8 +53,19 @@ public class UserController {
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);  // Set the hashed password
 
-        // Save the user with the hashed password
-        return userRepository.save(user);
+        // Save user first to generate ID
+        User savedUser = userRepository.save(user);
+
+        // Automatically create 7 weekdays linked to the saved user
+        String[] weekdays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        for (String dayName : weekdays) {
+            Day day = new Day();
+            day.setUser(savedUser);
+            day.setWeekday(dayName);
+            dayRepository.save(day);
+        }
+
+        return savedUser;
     }
 
     // In your controller

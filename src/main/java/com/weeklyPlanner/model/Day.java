@@ -1,6 +1,7 @@
 package com.weeklyPlanner.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "days")
@@ -17,10 +18,19 @@ public class Day {
     @Column(name = "weekday", nullable = false)
     private String weekday;
 
-    public Day() {
+    @OneToMany(mappedBy = "day")
+    private List<Meal> meals;
 
+    public Day() {
     }
 
+    public List<Meal> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Meal> meals) {
+        this.meals = meals;
+    }
 
     public long getDayId() {
         return dayId;
@@ -30,6 +40,7 @@ public class Day {
         this.dayId = dayId;
     }
 
+    // Corrected getters and setters
     public User getUser() {
         return user;
     }
