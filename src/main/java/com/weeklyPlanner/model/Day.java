@@ -1,9 +1,12 @@
 package com.weeklyPlanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.util.List;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "days")
 public class Day {
 
@@ -18,7 +21,7 @@ public class Day {
     @Column(name = "weekday", nullable = false)
     private String weekday;
 
-    @OneToMany(mappedBy = "day")
+    @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Meal> meals;
 
     public Day() {

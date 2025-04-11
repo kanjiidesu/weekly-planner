@@ -14,9 +14,9 @@ export class AuthService {
   // Replace with real authentication logic (e.g., token, session, etc.)
   getUser(): Observable<User> {
     const user: User = {
-      userId: 1, 
-      username: 'john_doe',
-      password: ''
+      userId: 21, 
+      username: 'karina',
+      password: 'karina'
     };  // Example user
     return of(user);
   }

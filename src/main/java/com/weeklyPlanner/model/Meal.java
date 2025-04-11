@@ -1,5 +1,6 @@
 package com.weeklyPlanner.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +13,7 @@ public class Meal {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dayId", nullable = false)
+    @JsonBackReference
     private Day day;
 
     @Column(name = "type", nullable = false)

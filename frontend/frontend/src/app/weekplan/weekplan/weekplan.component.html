@@ -17,13 +17,13 @@
       </thead>
       <tbody>
         <tr *ngFor="let day of days">
-          <td>{{ day.weekDay }}</td>
+          <td>{{ day.weekday }}</td>
           <td>{{ getMeal(day, 'BREAKFAST') }}</td>
           <td>{{ getMeal(day, 'LUNCH') }}</td>
           <td>{{ getMeal(day, 'DINNER') }}</td>
           <td>{{ getMeal(day, 'SNACKS') }}</td>
           <td>
-            <button (click)="selectDay(day)">Add Meal</button>
+            <button mat-flat-button class="custom-button" (click)="selectDay(day)">Add Meal</button>
           </td>
         </tr>
       </tbody>
@@ -31,27 +31,32 @@
   
     <!-- Add Meal Form -->
     <div *ngIf="selectedDay">
-      <h2>Add Meal for {{ selectedDay.weekDay }}</h2>
-      <form (ngSubmit)="addMeal()">
-        <label for="type">Meal Type:</label>
-        <select [(ngModel)]="meal.type" name="type" id="type">
-          <option value="BREAKFAST">Breakfast</option>
-          <option value="LUNCH">Lunch</option>
-          <option value="DINNER">Dinner</option>
-          <option value="SNACKS">Snacks</option>
-        </select>
-  
-        <label for="description">Description:</label>
-        <input
-          type="text"
-          id="description"
-          [(ngModel)]="meal.description"
-          name="description"
-        />
-  
-        <button type="submit">Save</button>
-        <button type="button" (click)="cancelMealForm()">Cancel</button>
-      </form>
+      <!-- Popup Modal Wrapper -->
+      <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()"> <!-- Prevent modal from closing when clicking inside -->
+          <h2 class="addMeal">Add Meal for {{ selectedDay.weekday }}</h2>
+          <form (ngSubmit)="addMeal()">
+            <label for="type">Meal Type:</label>
+            <select [(ngModel)]="meal.type" name="type" id="type">
+              <option value="BREAKFAST">Breakfast</option>
+              <option value="LUNCH">Lunch</option>
+              <option value="DINNER">Dinner</option>
+              <option value="SNACKS">Snacks</option>
+            </select>
+    
+            <label for="description">Description:</label>
+            <input
+              type="text"
+              id="description"
+              [(ngModel)]="meal.description"
+              name="description"
+            />
+    
+            <button type="submit">Save</button>
+            <button type="button" (click)="cancelMealForm()">Cancel</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
   

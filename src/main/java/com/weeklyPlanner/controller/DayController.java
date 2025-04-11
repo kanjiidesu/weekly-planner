@@ -22,15 +22,18 @@ public class DayController {
 
     @GetMapping("/days/{userId}")
     public ResponseEntity<List<Day>> getUserDays(@PathVariable Long userId) {
-        // Get all the days for the user
         List<Day> days = dayRepository.findByUser_UserId(userId);
 
-        // Check if the list of days is empty, and if so, throw an exception
         if (days.isEmpty()) {
             throw new ResourceNotFoundException("No days found for user with id: " + userId);
         }
 
-        // Return the list of days in the response
         return ResponseEntity.ok(days);
     }
+
+    @GetMapping("/users/{userId}/days")
+    public List<Day> getDaysByUserId(@PathVariable Long userId) {
+        return dayRepository.findByUser_UserId(userId);
+    }
+
 }

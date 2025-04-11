@@ -1,8 +1,11 @@
 package com.weeklyPlanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
+// to prevent lazy loading, otherwise it gets error
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "users")
 public class User {
 

@@ -1,12 +1,13 @@
 .meal-planner {
-    max-width: 1400px;
-    margin: 2rem auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', sans-serif;
-  }
+  max-width: 70%;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem; 
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+  overflow-x: hidden;  /* Prevent horizontal overflow */
+  font-family: 'Segoe UI', sans-serif;
+}
   
   .planner-header {
     text-align: center;
@@ -14,8 +15,76 @@
   }
   
   .planner-header h1 {
-    font-size: 2rem;
+    font-size: 3rem;
     color: #4b8b3b;
+  }
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Make sure it's above other content */
+}
+
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px; /* Set your desired width */
+  max-width: 90%; /* Make sure it's responsive */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Heading Style */
+.addMeal {
+  font-size: 2.5rem;
+  color: #4b8b3b;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Inputs and Buttons */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+form label {
+  margin: 0.5rem 0;
+}
+
+form input, form select, form button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 0.5rem 0;
+}
+
+form button {
+  background-color: #4b8b3b;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #88b04b;
+}
+
+  
+  form button:hover {
+    background-color: #88b04b;
   }
   
   .planner-header .highlight {
@@ -25,7 +94,7 @@
   .planner-header input {
     border: none;
     background: transparent;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: bold;
     text-align: center;
     color: #555;
@@ -40,13 +109,21 @@
   
   .planner-table th, .planner-table td {
     border: 1px solid #ddd;
-    padding: 1rem;
+    padding: 0.5rem; /* Increase padding in table cells for more space */
     text-align: center;
-    font-size: 1rem;
-  }
+    font-size: 2rem; /* Increase text size inside the table */
+}
   
   .planner-table th {
     background-color: #f7f7f7;
     color: #4b8b3b;
   }
-  
+
+  .custom-button {
+    background-color: #4b8b3b !important;
+    font-size: 20px;
+  }
+
+  .custom-button:hover {
+    background-color: #99be60 !important;
+  }

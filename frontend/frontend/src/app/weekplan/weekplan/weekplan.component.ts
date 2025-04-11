@@ -1,22 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { MealService } from '../../service/meal.service';  // Import MealService
-import { AuthService } from '../../service/auth-service.service';  // Import AuthService for getting logged-in user
-import { Meal } from '../../model/meal';  // Import Meal interface
-import { Day } from '../../model/day';  // Import Day interface
+import { MealService } from '../../service/meal.service'; 
+import { DayService } from '../../service/day.service';
+import { AuthService } from '../../service/auth-service.service'; 
+import { Meal } from '../../model/meal'; 
+import { Day } from '../../model/day'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-weekplan',
   templateUrl: './weekplan.component.html',
   styleUrls: ['./weekplan.component.css'],
-  standalone: true,  // Mark as standalone
-  imports: [CommonModule, FormsModule]
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatButtonModule]
 })
 export class WeekplanComponent implements OnInit {
+  showModal = false;  // Flag to control the modal visibility
+
   weekNumber: number = 0;
   days: Day[] = [];  // Array to hold the days for the logged-in user
-  meal: Meal = {  // The meal object for the form
+  meal: Meal = {  
     mealId: 0,
     dayId: 0,
     type: '',
@@ -27,8 +31,9 @@ export class WeekplanComponent implements OnInit {
   userId: number = 0;  // User ID to fetch their days
 
   constructor(
-    private mealService: MealService,  // MealService to fetch meal data
-    private authService: AuthService  // Inject AuthService to get logged-in user
+    private mealService: MealService,  
+    private authService: AuthService,  
+    private dayService: DayService
   ) {}
 
   ngOnInit(): void {
@@ -39,20 +44,31 @@ export class WeekplanComponent implements OnInit {
   // Get the logged-in user's ID
   getLoggedInUserId(): void {
     this.authService.getUser().subscribe((user) => {
-      this.userId = user.userId;  // Store user ID
-      this.loadDays();  // Fetch the days for the logged-in user
+      this.userId = user.userId;  
+      this.loadDays();  
     });
   }
 
-  // Select a day and prepare the meal form
+  // Open the modal to add a meal
+  openModal() {
+    this.showModal = true;
+  }
+
+  // Close the modal
+  closeModal() {
+    this.showModal = false;
+  }
+
+  // Select a day and prepare the meal form, then open the modal
   selectDay(day: Day): void {
     this.selectedDay = day;
-    this.meal = {  // Initialize the meal object to ensure it's empty when selecting a new day
+    this.meal = {  
       mealId: 0,
-      dayId: day.dayId,  // Set the dayId for the selected day
+      dayId: day.dayId,  
       type: '',
       description: ''
     };
+    this.openModal();  // Open the modal after selecting a day
   }
 
   // Get the week number for the current date
@@ -66,33 +82,34 @@ export class WeekplanComponent implements OnInit {
 
   // Load days for the logged-in user
   loadDays(): void {
-    this.mealService.getDaysByUser(this.userId).subscribe((days) => {
-      this.days = days;  // Store the days assigned to the user
+    this.dayService.getUserDays(this.userId).subscribe((days) => {
+      console.log('Days for user:', days);  
+      this.days = days;  
 
-      // Fetch meals for each day and populate the `meals` array
+      // Optionally, you can also fetch meals for each day as you were doing before
       this.days.forEach((day) => {
         this.mealService.getMealsByDay(day.dayId).subscribe((meals) => {
-          day.meals = meals;  // Update meals for each day
+          day.meals = meals;  
         });
       });
     });
-  }
+  }  
 
   // Get the meal description for a specific type (e.g., BREAKFAST)
   getMeal(day: Day, type: string): string {
     const meal = day.meals.find((m: Meal) => m.type === type);
-    return meal ? meal.description : '-';  // Return the description or "-" if no meal found
+    return meal ? meal.description : '-';  
   }
 
   // Add a new meal for the selected day
   addMeal(): void {
     if (this.selectedDay) {
-      this.meal.dayId = this.selectedDay.dayId;  // Assign the selected day ID to the meal
+      this.meal.dayId = this.selectedDay.dayId;  
       this.mealService.addMeal(this.meal).subscribe(
         (response) => {
           console.log('Meal added:', response);
-          this.selectedDay!.meals.push(response);  // Update the meals list for the selected day
-          this.resetMealForm();  // Optionally reset the form after submission
+          this.selectedDay!.meals.push(response);  
+          this.resetMealForm();  
         },
         (error) => {
           console.error('Error adding meal:', error);
@@ -103,11 +120,12 @@ export class WeekplanComponent implements OnInit {
 
   // Reset the meal form
   resetMealForm() {
-    this.meal = { mealId: 0, dayId: 0, type: '', description: '' };  // Reset meal form
+    this.meal = { mealId: 0, dayId: 0, type: '', description: '' };  
   }
 
   // Cancel meal form and reset
   cancelMealForm(): void {
-    this.resetMealForm();  // Reset the meal form on cancel
+    this.showModal = false;
+    this.resetMealForm();  
   }
 }
