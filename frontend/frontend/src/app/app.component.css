@@ -1,51 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-/* Ensure the body and html don't overflow */
-
-html, body {
-    height: 100%;  /* Make sure the body takes up the full height */
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    background-color: #f8f9fa;
-    font-family: 'Roboto', sans-serif;
+/* Prevent horizontal overflow of the row */
+.row {
+    max-width: 100%; /* Ensure the row takes full width */
+    overflow-x: hidden; /* Hide any horizontal overflow */
   }
   
-  .navbar-custom {
-    background-color: #4b8b3b;
-    padding: 0.5rem 1rem;
-  }
-  .navbar-custom .navbar-nav .nav-link {
-    color: white;
-    font-size: 0.9rem;
-  }
-  .navbar-custom .navbar-nav .nav-link:hover {
-    color: #d9d9d9;
+  /* Ensure the container does not cause horizontal overflow */
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%; /* Ensure it spans the full width */
   }
   
-  /* Preventing body from exceeding the viewport */
+  /* For body to prevent any horizontal scrolling */
   body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    margin: 0; /* Remove any unwanted margin from the body */
+    padding: 0; /* Ensure no padding causing overflow */
   }
-
+  
+  /* Prevent any element from overflowing horizontally */
   .card {
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    width: 100%; /* Ensure the card takes the full width */
+    max-width: 100%; /* Ensure it doesn't overflow */
   }
   
-  /* Optional: Adjust for any specific content that might overflow */
-  * {
-    box-sizing: border-box; /* Prevent content from overflowing its container */
-  }
+  /* Adjust for responsiveness and smaller screens */
+  @media (max-width: 1070) {
+    /* Reduce padding for small screens */
+    .container-fluid {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
   
-  /* Prevent unwanted vertical scrolling in the app root */
-  app-root {
-    height: 100%;  /* Ensure the root element takes the full height of the screen */
-    overflow-y: auto;  /* Allow vertical scrolling if necessary */
+    .card-body {
+      padding: 1.5rem; /* Adjust padding for smaller screens */
+    }
+  
+    /* Reduce font size for smaller screens */
+    .card-title {
+      font-size: 1.5rem;
+    }
   }
   

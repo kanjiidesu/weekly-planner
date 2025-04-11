@@ -104,7 +104,9 @@ export class WeekplanComponent implements OnInit {
   // Add a new meal for the selected day
   addMeal(): void {
     if (this.selectedDay) {
-      this.meal.dayId = this.selectedDay.dayId;  
+      this.meal.dayId = this.selectedDay.dayId; // Send only the dayId
+      console.log('Meal to be added:', this.meal);  // Log the meal object before sending
+  
       this.mealService.addMeal(this.meal).subscribe(
         (response) => {
           console.log('Meal added:', response);
@@ -115,8 +117,10 @@ export class WeekplanComponent implements OnInit {
           console.error('Error adding meal:', error);
         }
       );
+    } else {
+      console.error('No selected day!');
     }
-  }
+  }  
 
   // Reset the meal form
   resetMealForm() {

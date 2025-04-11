@@ -54,4 +54,13 @@ public class Meal {
     public String getDescription() {return description;}
 
     public void setDescription(String description) {this.description = description;}
+
+    public long getDayId() {
+        return (day != null) ? day.getDayId() : 0;  // If day is null, return 0
+    }
+
+    public void setDayId(long dayId) {
+        // Optional: If you want to set dayId directly without fetching Day object
+        // you can manually set the day object based on the dayId (but you may want to keep it consistent with the database)
+    }
 }

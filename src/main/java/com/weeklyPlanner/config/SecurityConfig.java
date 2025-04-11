@@ -47,7 +47,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/api/v1/login", "/api/v1/users").permitAll()  // Allow unauthenticated access to login and user creation
+                                .requestMatchers("/api/v1/login", "/api/v1/users", "/api/v1/meals", "/api/v1/days").permitAll()  // Allow unauthenticated access to login and user creation
                                 .requestMatchers("/api/v1/users/**").authenticated()  // Protect user fetching and other API routes
                                 .anyRequest().permitAll()  // Allow other requests without authentication
                 )

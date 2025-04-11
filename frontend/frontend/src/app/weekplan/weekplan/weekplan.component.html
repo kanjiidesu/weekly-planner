@@ -1,62 +1,65 @@
 <div class="meal-planner">
-    <div class="planner-header">
-      <h1>My <span class="highlight">Meal</span> Planner</h1>
-      <input type="text" id="week" [value]="'Week ' + weekNumber" readonly />
-    </div>
+  <div class="planner-header">
+    <h1>My <span class="highlight">Meal</span> Planner</h1>
+    <input type="text" id="week" [value]="'Week ' + weekNumber" readonly />
+  </div>
+
+  <table class="planner-table">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Breakfast</th>
+        <th>Lunch</th>
+        <th>Dinner</th>
+        <th>Snacks</th>
+        <th></th> <!-- Added column for the "Add Meal" button -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let day of days">
+        <td>{{ day.weekday }}</td>
+        <td>{{ getMeal(day, 'BREAKFAST') }}</td>
+        <td>{{ getMeal(day, 'LUNCH') }}</td>
+        <td>{{ getMeal(day, 'DINNER') }}</td>
+        <td>{{ getMeal(day, 'SNACKS') }}</td>
+        <td>
+          <button mat-flat-button class="custom-button" (click)="selectDay(day)">Add Meal</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Add Meal Form Modal -->
+  <div *ngIf="selectedDay">
+    <!-- Popup Modal Wrapper -->
+    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()"> <!-- Prevent modal from closing when clicking inside -->
+        <h2 class="addMeal">Add Meal for {{ selectedDay.weekday }}</h2>
+        <form (ngSubmit)="addMeal()">
+          <!-- Meal Type Selection -->
+          <label for="type">Meal Type:</label>
+          <select [(ngModel)]="meal.type" name="type" id="type" required>
+            <option value="BREAKFAST">Breakfast</option>
+            <option value="LUNCH">Lunch</option>
+            <option value="DINNER">Dinner</option>
+            <option value="SNACKS">Snacks</option>
+          </select>
   
-    <table class="planner-table">
-      <thead>
-        <tr>
-          <th>Day</th>
-          <th>Breakfast</th>
-          <th>Lunch</th>
-          <th>Dinner</th>
-          <th>Snacks</th>
-          <th></th> <!-- Added column for the "Add Meal" button -->
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let day of days">
-          <td>{{ day.weekday }}</td>
-          <td>{{ getMeal(day, 'BREAKFAST') }}</td>
-          <td>{{ getMeal(day, 'LUNCH') }}</td>
-          <td>{{ getMeal(day, 'DINNER') }}</td>
-          <td>{{ getMeal(day, 'SNACKS') }}</td>
-          <td>
-            <button mat-flat-button class="custom-button" (click)="selectDay(day)">Add Meal</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          <!-- Meal Description Input -->
+          <label for="description">Description:</label>
+          <input
+            type="text"
+            id="description"
+            [(ngModel)]="meal.description"
+            name="description"
+            required
+          />
   
-    <!-- Add Meal Form -->
-    <div *ngIf="selectedDay">
-      <!-- Popup Modal Wrapper -->
-      <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()"> <!-- Prevent modal from closing when clicking inside -->
-          <h2 class="addMeal">Add Meal for {{ selectedDay.weekday }}</h2>
-          <form (ngSubmit)="addMeal()">
-            <label for="type">Meal Type:</label>
-            <select [(ngModel)]="meal.type" name="type" id="type">
-              <option value="BREAKFAST">Breakfast</option>
-              <option value="LUNCH">Lunch</option>
-              <option value="DINNER">Dinner</option>
-              <option value="SNACKS">Snacks</option>
-            </select>
-    
-            <label for="description">Description:</label>
-            <input
-              type="text"
-              id="description"
-              [(ngModel)]="meal.description"
-              name="description"
-            />
-    
-            <button type="submit">Save</button>
-            <button type="button" (click)="cancelMealForm()">Cancel</button>
-          </form>
-        </div>
+          <!-- Submit and Cancel Buttons -->
+          <button type="submit" [disabled]="!meal.type || !meal.description">Save</button>
+          <button type="button" (click)="cancelMealForm()">Cancel</button>
+        </form>
       </div>
     </div>
   </div>
-  
+</div>

@@ -22,6 +22,10 @@ public class MealService {
     }
 
     public Meal addMeal(Meal meal) {
+        if (meal == null) {
+            throw new IllegalArgumentException("Meal cannot be null");
+        }
+
         return mealRepository.save(meal);
     }
 }
