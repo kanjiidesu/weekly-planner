@@ -64,6 +64,10 @@ export class WeekplanComponent implements OnInit {
   closeModal() {
     this.showModal = false;
   }
+  
+  printPage() {
+    window.print();
+  }
 
   // Select a day and prepare the meal form, then open the modal
   selectDay(day: Day): void {

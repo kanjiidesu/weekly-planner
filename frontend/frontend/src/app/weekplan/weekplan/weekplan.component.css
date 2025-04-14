@@ -127,3 +127,77 @@ form button:hover {
   .custom-button:hover {
     background-color: #99be60 !important;
   }
+
+  button.print {
+    padding-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  button.print:hover {
+    background-color: #45a049; /* Darker green */
+  }
+
+/* Print-specific styles */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0.10in; /* Approx. the same as "Minimum" in browsers */
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: visible;
+    zoom: 0.60; /* Slightly smaller for full fit */
+  }
+
+  .meal-planner {
+    width: 100% !important;
+    max-width: none !important;
+    box-shadow: none;
+    padding: 1rem;
+    transform: none !important;
+  }
+
+  table, .planner-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    font-size: 13px; /* Slightly reduced */
+    padding: 6px;     /* Slightly tighter */
+    word-break: break-word;
+    white-space: nowrap;
+  }
+
+  .planner-header input {
+    padding: none;
+    font-size: 1.5rem;
+  }
+
+  .planner-header h1 {
+    font-size: 2rem; /* Reduce heading for print */
+  }
+
+  .planner-header h2 {
+    font-size: 0.1rem;
+  }
+
+  button.print,
+  .no-print {
+    display: none !important;
+  }
+
+  .no-break {
+    page-break-inside: avoid;
+  }
+}

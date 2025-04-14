@@ -79,7 +79,7 @@ export class UserService {
 
   // Store the JWT token in localStorage
   storeToken(token: string) {
-    localStorage.setItem('authToken', token); // Store the JWT token
+    localStorage.setItem('jwtToken', token);
   }
 
   // Remove the JWT token when logging out

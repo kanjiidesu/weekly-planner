@@ -20,4 +20,16 @@ export class AuthService {
     };  // Example user
     return of(user);
   }
+
+  isLoggedIn(): boolean {
+    const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+    return !!token; // Return true if token exists, false otherwise
+  }
+
+  logout(): void {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('user'); 
+    sessionStorage.removeItem('jwtToken');
+    console.log("Logged out successfully");
+  }
 }
