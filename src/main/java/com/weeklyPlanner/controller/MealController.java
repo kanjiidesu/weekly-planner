@@ -1,5 +1,7 @@
 package com.weeklyPlanner.controller;
 
+import com.weeklyPlanner.dto.MealDto;
+import com.weeklyPlanner.maps.MealMapper;
 import com.weeklyPlanner.model.Day;
 import com.weeklyPlanner.model.Meal;
 import com.weeklyPlanner.repository.DayRepository;
@@ -35,32 +37,42 @@ public class MealController {
     private DayRepository dayRepository;
 
     @PostMapping
-    public ResponseEntity<Meal> addMeal(@RequestBody Meal meal) {
+    public ResponseEntity<MealDto> addMeal(@RequestBody MealDto mealDto) {
         try {
-            // Access the dayId directly from the meal object
-            long dayId = meal.getDayId();  // Use getDayId() instead of getDay().getDayId()
+            long dayId = mealDto.getDayId();
+            System.out.println("Day ID received: " + dayId);
 
-            System.out.println("Day ID received: " + dayId);  // Debug log to check
-
-            // Fetch the Day entity based on the dayId
             Optional<Day> dayOpt = dayRepository.findById(dayId);
             if (dayOpt.isEmpty()) {
-                // If the Day with the provided dayId doesn't exist, return BAD_REQUEST
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
 
             Day day = dayOpt.get();
-            System.out.println("Fetched Day: " + day);
+            Meal meal = MealMapper.toEntity(mealDto, day); // Convert DTO to entity
 
-            // Set the fetched Day entity to the meal
-            meal.setDay(day);
-
-            // Now save the meal
             Meal savedMeal = mealService.addMeal(meal);
-            return new ResponseEntity<>(savedMeal, HttpStatus.CREATED);
+            MealDto responseDto = MealMapper.toDto(savedMeal); // Convert entity back to DTO
+
+            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+
         } catch (Exception e) {
-            e.printStackTrace();  // Log the full exception for better debugging
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{mealId}")
+    public ResponseEntity<Void> deleteMeal(@PathVariable Long mealId) {
+        try {
+            boolean deleted = mealService.deleteMeal(mealId);
+            if (deleted) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 - successfully deleted
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 - meal not found
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

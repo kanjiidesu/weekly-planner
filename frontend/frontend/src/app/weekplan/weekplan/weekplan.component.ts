@@ -110,7 +110,7 @@ export class WeekplanComponent implements OnInit {
       this.mealService.addMeal(this.meal).subscribe(
         (response) => {
           console.log('Meal added:', response);
-          this.selectedDay!.meals.push(response);  
+          this.selectedDay!.meals.push(response);
           this.resetMealForm();  
         },
         (error) => {
