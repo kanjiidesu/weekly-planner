@@ -83,11 +83,12 @@ export class WeekplanComponent implements OnInit {
 
   // Get the week number for the current date
   getWeekNumber(date: Date): number {
-    const oneJan = new Date(date.getFullYear(), 0, 1);
-    const dayOfYear = Math.floor(
-      (date.getTime() - oneJan.getTime()) / (24 * 60 * 60 * 1000)
-    ) + 1;
-    return Math.ceil(dayOfYear / 7);
+    const target = new Date(date.valueOf());
+    const dayNr = (date.getDay() + 6) % 7; // Make Monday=0, Sunday=6
+    target.setDate(target.getDate() - dayNr + 3); // Nearest Thursday
+    const firstThursday = new Date(target.getFullYear(), 0, 4);
+    const diff = target.getTime() - firstThursday.getTime();
+    return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
   }
 
   // Load days for the logged-in user
