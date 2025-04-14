@@ -26,4 +26,8 @@ export class MealService {
   getDaysByUser(userId: number): Observable<Day[]> {
     return this.http.get<Day[]>(`${this.apiUrl}/days?userId=${userId}`);
   }
+
+  deleteMeal(mealId: number): Observable<void> {
+    return this.http.delete<void>(`http://localhost:8080/api/v1/meals/${mealId}`);
+  }
 }

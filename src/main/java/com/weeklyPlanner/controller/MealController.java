@@ -65,14 +65,16 @@ public class MealController {
     public ResponseEntity<Void> deleteMeal(@PathVariable Long mealId) {
         try {
             boolean deleted = mealService.deleteMeal(mealId);
+
             if (deleted) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 - successfully deleted
+                return ResponseEntity.noContent().build(); // 204
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 - meal not found
+                return ResponseEntity.notFound().build(); // 404
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500
         }
     }
 

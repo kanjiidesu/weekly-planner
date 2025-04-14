@@ -7,13 +7,15 @@ import { Day } from '../../model/day';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-weekplan',
   templateUrl: './weekplan.component.html',
   styleUrls: ['./weekplan.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule]
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, HttpClientModule]
 })
 export class WeekplanComponent implements OnInit {
   showModal = false;  // Flag to control the modal visibility
@@ -39,6 +41,10 @@ export class WeekplanComponent implements OnInit {
   ngOnInit(): void {
     this.weekNumber = this.getWeekNumber(new Date());
     this.getLoggedInUserId();  // Get logged-in user ID
+  }
+
+  getMealObject(day: Day, type: string): Meal | undefined {
+    return day.meals.find((m: Meal) => m.type === type);
   }
 
   // Get the logged-in user's ID
@@ -120,7 +126,19 @@ export class WeekplanComponent implements OnInit {
     } else {
       console.error('No selected day!');
     }
-  }  
+  }
+
+  deleteMeal(mealId: number, day: Day): void {
+    this.mealService.deleteMeal(mealId).subscribe(
+      () => {
+        day.meals = day.meals.filter((m: Meal) => m.mealId !== mealId);
+        console.log(`Meal with ID ${mealId} deleted.`);
+      },
+      (error) => {
+        console.error('Error deleting meal:', error);
+      }
+    );
+  }
 
   // Reset the meal form
   resetMealForm() {

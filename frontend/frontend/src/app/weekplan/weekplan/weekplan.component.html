@@ -12,16 +12,54 @@
         <th>Lunch</th>
         <th>Dinner</th>
         <th>Snacks</th>
-        <th></th> <!-- Added column for the "Add Meal" button -->
+        <th></th> <!-- For "Add Meal" button -->
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let day of days">
         <td>{{ day.weekday }}</td>
-        <td>{{ getMeal(day, 'BREAKFAST') }}</td>
-        <td>{{ getMeal(day, 'LUNCH') }}</td>
-        <td>{{ getMeal(day, 'DINNER') }}</td>
-        <td>{{ getMeal(day, 'SNACKS') }}</td>
+
+        <!-- Breakfast -->
+        <td>
+          <ng-container *ngIf="getMealObject(day, 'BREAKFAST') as meal">
+            {{ meal.description }}
+            <button mat-icon-button color="warn" (click)="deleteMeal(meal.mealId, day)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+
+        <!-- Lunch -->
+        <td>
+          <ng-container *ngIf="getMealObject(day, 'LUNCH') as meal">
+            {{ meal.description }}
+            <button mat-icon-button color="warn" (click)="deleteMeal(meal.mealId, day)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+
+        <!-- Dinner -->
+        <td>
+          <ng-container *ngIf="getMealObject(day, 'DINNER') as meal">
+            {{ meal.description }}
+            <button mat-icon-button color="warn" (click)="deleteMeal(meal.mealId, day)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+
+        <!-- Snacks -->
+        <td>
+          <ng-container *ngIf="getMealObject(day, 'SNACKS') as meal">
+            {{ meal.description }}
+            <button mat-icon-button color="warn" (click)="deleteMeal(meal.mealId, day)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+
+        <!-- Add Meal Button -->
         <td>
           <button mat-flat-button class="custom-button" (click)="selectDay(day)">Add Meal</button>
         </td>
@@ -29,14 +67,12 @@
     </tbody>
   </table>
 
-  <!-- Add Meal Form Modal -->
+  <!-- Modal for Adding Meal -->
   <div *ngIf="selectedDay">
-    <!-- Popup Modal Wrapper -->
     <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()"> <!-- Prevent modal from closing when clicking inside -->
+      <div class="modal-content" (click)="$event.stopPropagation()">
         <h2 class="addMeal">Add Meal for {{ selectedDay.weekday }}</h2>
         <form (ngSubmit)="addMeal()">
-          <!-- Meal Type Selection -->
           <label for="type">Meal Type:</label>
           <select [(ngModel)]="meal.type" name="type" id="type" required>
             <option value="BREAKFAST">Breakfast</option>
@@ -44,8 +80,7 @@
             <option value="DINNER">Dinner</option>
             <option value="SNACKS">Snacks</option>
           </select>
-  
-          <!-- Meal Description Input -->
+
           <label for="description">Description:</label>
           <input
             type="text"
@@ -54,8 +89,7 @@
             name="description"
             required
           />
-  
-          <!-- Submit and Cancel Buttons -->
+
           <button type="submit" [disabled]="!meal.type || !meal.description">Save</button>
           <button type="button" (click)="cancelMealForm()">Cancel</button>
         </form>
