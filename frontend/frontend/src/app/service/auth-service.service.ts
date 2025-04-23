@@ -29,6 +29,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('user'); 
+    localStorage.removeItem('lastListName');
     sessionStorage.removeItem('jwtToken');
     console.log("Logged out successfully");
   }

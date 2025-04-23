@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface DayRepository extends JpaRepository<Day, Long> {
-    // Correct query method using dot notation to reference userId in the User entity
+    // auto-generates the implementation at runtime, so you do not have to create a class
     List<Day> findByUser_UserId(Long userId);
 
     Optional<Day> findById(Long dayId);

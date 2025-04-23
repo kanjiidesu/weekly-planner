@@ -1,0 +1,31 @@
+<div class="container">
+    <h2 class="groceries">Grocery Purchase List</h2>
+  
+    <!-- Create New List -->
+    <div class="list-form">
+      <label class="listname" for="listName">New List Name:</label>
+      <input id="listName" [(ngModel)]="newListName" placeholder="e.g., Weekend Groceries" />
+      <button (click)="createList()">Create List</button>
+    </div>
+  
+    <!-- All Lists -->
+    <div *ngFor="let list of allLists" class="currentlist">
+      <h3 class="list">{{ list.name }}</h3>
+  
+      <!-- Add Items To This List -->
+      <div class="item-form">
+        <input [(ngModel)]="list.newItemName" placeholder="Item name (e.g. Apples)" />
+        <input type="number" [(ngModel)]="list.newItemQuantity" min="1" placeholder="Qty" />
+        <button (click)="addItemToList(list)">Add</button>
+      </div>
+  
+      <!-- Item List -->
+      <ul class="item-list">
+        <li *ngFor="let item of list.items; let i = index">
+          {{ item.name }} <span class="qty">x{{ item.quantity }}</span>
+          <span class="remove" (click)="removeItemFromList(list, i)">✖</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  

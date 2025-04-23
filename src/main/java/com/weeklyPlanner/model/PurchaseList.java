@@ -9,12 +9,14 @@ public class PurchaseList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long purchaseListId;
+    @Column(name = "purchaseListName", nullable = false)
+    private String purchaseListName;
 
     @Column(name = "itemName", nullable = false)
     private String itemName;
 
     @Column(name = "quantity", nullable = true)
-    private String quantity;
+    private long quantity;
 
     public PurchaseList() {
 
@@ -29,16 +31,19 @@ public class PurchaseList {
         this.purchaseListId = purchaseListId;
     }
 
+    public String getPurchaseListName() { return purchaseListName; }
+
+    public void setPurchaseListName(String purchaseListName) { this.purchaseListName = purchaseListName; }
+
+
     public String getItemName() {
         return itemName;
     }
 
-    public void setUser(String itemName) {
-        this.itemName = itemName;
-    }
+    public void setItemName(String itemName) { this.itemName = itemName; }
 
-    public String getQuantity() { return quantity; }
+    public long getQuantity() { return quantity; }
 
-    public void setQuantity() { this.quantity = quantity; }
+    public void setQuantity(long quantity) { this.quantity = quantity; }
 
 }
