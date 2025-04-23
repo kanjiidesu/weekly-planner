@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -45,8 +46,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth ->
-                        auth
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                                 .requestMatchers("/api/v1/users/**").authenticated()  // Protect user fetching and other API routes
                                 .anyRequest().permitAll()  // Allow other requests without authentication
                 )
@@ -64,7 +67,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);  // Allow credentials (cookies, auth headers)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);  // Apply CORS to API routes
+        source.registerCorsConfiguration("/**", configuration);  // Apply CORS to API routes
         return source;
     }
 }

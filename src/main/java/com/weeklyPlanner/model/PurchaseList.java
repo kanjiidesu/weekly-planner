@@ -2,6 +2,8 @@ package com.weeklyPlanner.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "purchaseList")
 public class PurchaseList {
@@ -9,6 +11,14 @@ public class PurchaseList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long purchaseListId;
+
+    @ManyToMany
+    @JoinTable(
+            name = "purchase_list_users",
+            joinColumns = @JoinColumn(name = "purchase_list_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users;
     @Column(name = "purchaseListName", nullable = false)
     private String purchaseListName;
 

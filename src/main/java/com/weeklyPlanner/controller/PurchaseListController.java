@@ -1,8 +1,11 @@
 package com.weeklyPlanner.controller;
 
 import com.weeklyPlanner.model.PurchaseList;
+import com.weeklyPlanner.model.User;
 import com.weeklyPlanner.repository.PurchaseListRepository;
+import com.weeklyPlanner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,9 @@ public class PurchaseListController {
     @Autowired
     private PurchaseListRepository purchaseListRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping
     public PurchaseList addItem(@RequestBody PurchaseList item) {
         return purchaseListRepository.save(item);
@@ -28,10 +34,13 @@ public class PurchaseListController {
     }
 
     @GetMapping
-    public List<PurchaseList> getAllItems() {
-        return purchaseListRepository.findAll();
-    }
+    public List<PurchaseList> getAllItems(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        return purchaseListRepository.findAllByUsersContaining(user);
+    }
     @GetMapping("/by-list/{listName}")
     public List<PurchaseList> getItemsByListName(@PathVariable String purchaseListName) {
         return purchaseListRepository.findByPurchaseListName(purchaseListName);

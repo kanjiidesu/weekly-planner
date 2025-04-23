@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MealService } from '../../service/meal.service'; 
+import { MealService } from '../../service/meal.service';
 import { DayService } from '../../service/day.service';
-import { AuthService } from '../../service/auth-service.service'; 
-import { Meal } from '../../model/meal'; 
-import { Day } from '../../model/day'; 
+import { AuthService } from '../../service/auth-service.service';
+import { Meal } from '../../model/meal';
+import { Day } from '../../model/day';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,10 +39,13 @@ export class WeekplanComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.weekNumber = this.getWeekNumber(new Date());
-    this.getLoggedInUserId();  // Get logged-in user ID
+    if (this.authService.isLoggedIn()) {
+      this.weekNumber = this.getWeekNumber(new Date());
+      this.getLoggedInUserId();  // Get logged-in user ID
+    } else {
+      console.error('User is not logged in');
+    }
   }
-
   getMealObject(day: Day, type: string): Meal | undefined {
     return day.meals.find((m: Meal) => m.type === type);
   }
@@ -50,8 +53,14 @@ export class WeekplanComponent implements OnInit {
   // Get the logged-in user's ID
   getLoggedInUserId(): void {
     this.authService.getUser().subscribe((user) => {
-      this.userId = user.userId;  
-      this.loadDays();  
+      if (user) {
+        this.userId = user.userId;  // Set userId if user is found
+        console.log("Fetching days for user ID:", this.userId);
+        this.loadDays();  // Proceed to load days after getting user ID
+        console.log("i got days")
+      } else {
+        console.error('User not found in localStorage');
+      }
     });
   }
 
@@ -64,7 +73,7 @@ export class WeekplanComponent implements OnInit {
   closeModal() {
     this.showModal = false;
   }
-  
+
   printPage() {
     window.print();
   }
@@ -93,6 +102,7 @@ export class WeekplanComponent implements OnInit {
 
   // Load days for the logged-in user
   loadDays(): void {
+    console.log("Hello from loadDays method", this.dayService.getUserDays)
     this.dayService.getUserDays(this.userId).subscribe((days) => {
       console.log('Days for user:', days);  
       this.days = days;  
@@ -104,7 +114,7 @@ export class WeekplanComponent implements OnInit {
         });
       });
     });
-  }  
+  }
 
   // Get the meal description for a specific type (e.g., BREAKFAST)
   getMeal(day: Day, type: string): string {

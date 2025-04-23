@@ -1,6 +1,7 @@
 package com.weeklyPlanner.repository;
 
 import com.weeklyPlanner.model.PurchaseList;
+import com.weeklyPlanner.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,4 +11,6 @@ import java.util.List;
 public interface PurchaseListRepository extends JpaRepository<PurchaseList, Long> {
 
     List<PurchaseList> findByPurchaseListName(String purchaseListName);
+
+    List<PurchaseList> findAllByUsersContaining(User user);
 }

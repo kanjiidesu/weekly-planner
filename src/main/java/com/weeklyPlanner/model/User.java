@@ -3,6 +3,8 @@ package com.weeklyPlanner.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 // to prevent lazy loading, otherwise it gets error
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -12,6 +14,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
+
+    @ManyToMany(mappedBy = "users")
+    private List<PurchaseList> purchaseLists;
 
     @Column(name = "username", nullable = false)
     private String username;

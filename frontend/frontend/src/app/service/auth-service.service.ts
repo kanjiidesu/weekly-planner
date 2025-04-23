@@ -10,15 +10,20 @@ export class AuthService {
 
   constructor() {}
 
-  // Mock implementation to get logged-in user
-  // Replace with real authentication logic (e.g., token, session, etc.)
-  getUser(): Observable<User> {
-    const user: User = {
-      userId: 21, 
-      username: 'karina',
-      password: 'karina'
-    };  // Example user
-    return of(user);
+  // Get logged-in user from localStorage
+  getUser(): Observable<User | null> {
+    const user = localStorage.getItem('user');  // Retrieve the user object from localStorage
+    if (user) {
+      try {
+        return of(JSON.parse(user));  // Try to parse the user data and return it
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+        return of(null);  // Return null if there's an error parsing
+      }
+    } else {
+      console.warn('User not found in localStorage');
+      return of(null);  // Return null if user is not found in localStorage
+    }
   }
 
   isLoggedIn(): boolean {
@@ -28,6 +33,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('user'); 
     localStorage.removeItem('lastListName');
     sessionStorage.removeItem('jwtToken');

@@ -37,7 +37,7 @@ export class AddUserComponent {
         this.userService.createUser(newUser).subscribe(
           (data) => {
             console.log('User added successfully:', data);
-            this.router.navigate(['/users']);  // Navigate to user list after adding
+            this.router.navigate(['/login']);  // Navigate to user list after adding
           },
           (error) => {
             console.error('Error adding user:', error);

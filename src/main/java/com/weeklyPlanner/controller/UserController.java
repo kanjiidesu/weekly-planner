@@ -88,12 +88,17 @@ public class UserController {
                 UserDetails userDetails = (UserDetails) principal;
 
                 // Generate JWT token
-                String jwtToken = jwtTokenUtil.generateToken(authentication); // Pass the Authentication object directly
+                String jwtToken = jwtTokenUtil.generateToken(authentication);
+
+                // Fetch user details from the repository
+                User user = userRepository.findByUsername(userDetails.getUsername())  // Assuming `findByUsername` method exists in your UserRepository
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
                 System.out.println("Attempting to authenticate user: " + loginRequest.getUsername());
                 System.out.println("with password: " + loginRequest.getPassword());
 
-                return ResponseEntity.ok(new JwtResponse(jwtToken));
+                // Return both token and user details
+                return ResponseEntity.ok(new JwtResponse(jwtToken, user));
             } else {
                 // If the principal is not of type UserDetails, return a failure response
                 return ResponseEntity.status(401).body("Authentication failed: Principal is not a valid UserDetails instance.");
@@ -104,17 +109,21 @@ public class UserController {
         }
     }
 
-
-    // Helper class for response
     public static class JwtResponse {
         private String token;
+        private User user;
 
-        public JwtResponse(String token) {
+        public JwtResponse(String token, User user) {
             this.token = token;
+            this.user = user;
         }
 
         public String getToken() {
             return token;
+        }
+
+        public User getUser() {
+            return user;
         }
     }
 

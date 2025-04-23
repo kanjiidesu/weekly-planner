@@ -13,14 +13,15 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   // Login method using Basic Authentication
-  login(username: string, password: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(this.loginUrl, {
+  login(username: string, password: string): Observable<{ token: string; user: User }> {
+    return this.http.post<{ token: string; user: User }>(this.loginUrl, {
       username,
       password
     }).pipe(
       tap(response => {
         if (response.token) {
-          this.storeToken(response.token);
+          this.storeToken(response.token);  // Store the token
+          this.storeUser(response.user);    // Store the user details
         }
       })
     );
@@ -85,5 +86,15 @@ export class UserService {
   // Remove the JWT token when logging out
   removeToken() {
     localStorage.removeItem('authToken'); // Remove the JWT token
+  }
+
+  storeUser(user: User): void {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+  
+  // Retrieve the stored user from localStorage
+  getStoredUser(): User | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
   }
 }
