@@ -3,10 +3,20 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface PurchaseItem {
-  purchaseListId?: number;
+  userId: number;
   purchaseListName: string;
   itemName: string;
-  quantity: string;
+  quantity: number;
+  purchaseListId?: number;
+}
+
+export interface PurchaseListResponse {
+  purchaseListId: number;
+  purchaseListName: string;
+  items: {
+    itemName: string;
+    quantity: number;
+  }[];
 }
 
 @Injectable({
@@ -17,16 +27,27 @@ export class PurchaseListService {
 
   constructor(private http: HttpClient) { }
 
-  addItem(item: PurchaseItem): Observable<PurchaseItem> {
-    return this.http.post<PurchaseItem>(this.apiUrl, item);
+  createPurchaseList(item: PurchaseItem): Observable<PurchaseListResponse> {
+    return this.http.post<PurchaseListResponse>(this.apiUrl, item);
   }
+
+  createEmptyList(userId: number, purchaseListName: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/create`, {
+      userId,
+      purchaseListName
+    });
+  }  
 
   removeItem(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   getAllItems(): Observable<PurchaseItem[]> {
-    return this.http.get<PurchaseItem[]>(this.apiUrl);
+    return this.http.get<PurchaseItem[]>(this.apiUrl, { withCredentials: true });
+  }
+
+  getUserPurchaseLists(userId: number): Observable<PurchaseItem[]> {
+    return this.http.get<PurchaseItem[]>(`${this.apiUrl}/user/${userId}`);
   }
 
   getItemsByListName(listName: string): Observable<PurchaseItem[]> {
@@ -35,5 +56,13 @@ export class PurchaseListService {
   
   getGroupedLists(): Observable<Record<string, PurchaseItem[]>> {
     return this.http.get<Record<string, PurchaseItem[]>>(`${this.apiUrl}/grouped`);
+  }
+
+  shareListWithUser(listId: number, username: string): Observable<string> {
+    return this.http.post(
+      `${this.apiUrl}/${listId}/share?username=${username}`,
+      {},
+      { responseType: 'text' }
+    );
   }
 }

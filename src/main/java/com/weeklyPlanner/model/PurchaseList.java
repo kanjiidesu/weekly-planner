@@ -1,59 +1,84 @@
 package com.weeklyPlanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "purchaseList")
+@Table(name = "purchaseLists")
 public class PurchaseList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long purchaseListId;
+    private Long purchaseListId;
 
-    @ManyToMany
+    @Column(nullable = false)
+    private String purchaseListName;
+
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "purchase_list_users",
             joinColumns = @JoinColumn(name = "purchase_list_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
-    @Column(name = "purchaseListName", nullable = false)
-    private String purchaseListName;
+    @JsonManagedReference
+    private List<User> users = new ArrayList<>();
 
-    @Column(name = "itemName", nullable = false)
-    private String itemName;
+    @OneToMany(mappedBy = "purchaseList", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<PurchaseItem> items = new ArrayList<>();
 
-    @Column(name = "quantity", nullable = true)
-    private long quantity;
+    // Constructors
+    public PurchaseList() {}
 
-    public PurchaseList() {
-
+    public PurchaseList(String name) {
+        this.purchaseListName = name;
     }
 
-
-    public long getPurchaseListId() {
+    // Getters and Setters
+    public Long getPurchaseListId() {
         return purchaseListId;
     }
 
-    public void setPurchaseListId(long purchaseListId) {
+    public void setPurchaseListId(Long purchaseListId) {
         this.purchaseListId = purchaseListId;
     }
 
-    public String getPurchaseListName() { return purchaseListName; }
-
-    public void setPurchaseListName(String purchaseListName) { this.purchaseListName = purchaseListName; }
-
-
-    public String getItemName() {
-        return itemName;
+    public String getPurchaseListName() {
+        return purchaseListName;
     }
 
-    public void setItemName(String itemName) { this.itemName = itemName; }
+    public void setPurchaseListName(String purchaseListName) {
+        this.purchaseListName = purchaseListName;
+    }
 
-    public long getQuantity() { return quantity; }
+    @JsonIgnore
+    public List<User> getUsers() {
+        return users;
+    }
 
-    public void setQuantity(long quantity) { this.quantity = quantity; }
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
+    public List<PurchaseItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<PurchaseItem> items) {
+        this.items = items;
+    }
+
+    public void addItem(PurchaseItem item) {
+        items.add(item);
+        item.setPurchaseList(this);
+    }
+
+    public void removeItem(PurchaseItem item) {
+        items.remove(item);
+        item.setPurchaseList(null);
+    }
 }

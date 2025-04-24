@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PurchaseListService, PurchaseItem } from '../../service/purchase-list.service';
-import { AuthService } from '../../service/auth-guard.component'
+import { AuthService } from '../../service/auth-guard.component';
 import { Router } from '@angular/router';
 
 interface DisplayItem {
@@ -15,132 +15,192 @@ interface ListWithItems {
   name: string;
   items: DisplayItem[];
   newItemName?: string;
-  newItemQuantity?: number | null; // <-- updated this line
+  newItemQuantity?: number | null;
+  shareWithUsername?: string;
 }
 
 @Component({
   selector: 'app-purchase-list',
   standalone: true,
   templateUrl: './purchase-list.component.html',
-  styleUrl: './purchase-list.component.css',
+  styleUrls: ['./purchase-list.component.css'],
   imports: [CommonModule, FormsModule]
 })
-export class PurchaseListComponent {
+export class PurchaseListComponent implements OnInit {
   newListName = '';
   allLists: ListWithItems[] = [];
+  userId: number = 0;
 
   constructor(
     private purchaseListService: PurchaseListService,
-    private authService: AuthService, // Assuming you have an auth service
-    private router: Router // To navigate the user
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
       this.clearPurchaseLists();
-      this.router.navigate(['/login']); // Redirect to login page
+      this.router.navigate(['/login']);
     } else {
-      this.loadAllLists();
+      // Fetch user info before calling loadAllLists
+      this.authService.getUser().subscribe((user) => {
+        if (user) {
+          this.userId = user.userId;
+          this.loadAllLists();
+        } else {
+          console.error('User not found');
+        }
+      });
     }
   }
 
   clearPurchaseLists() {
     this.allLists = [];
-    localStorage.removeItem('lastListName'); // Clear any stored list data
+    localStorage.removeItem('lastListName');
   }
-
+  
   loadAllLists() {
-    this.purchaseListService.getAllItems().subscribe(items => {
-      const grouped: { [key: string]: DisplayItem[] } = {};
-
-      items.forEach(item => {
-        const listName = item.purchaseListName;
-        if (!grouped[listName]) {
-          grouped[listName] = [];
-        }
-        grouped[listName].push({
+    this.purchaseListService.getUserPurchaseLists(this.userId).subscribe(purchaseLists => {
+      console.log('Received purchase lists:', purchaseLists);
+  
+      this.allLists = purchaseLists.map((purchaseList: any) => {
+        const items: DisplayItem[] = (purchaseList.items || []).map((item: any) => ({
           name: item.itemName,
-          quantity: Number(item.quantity),
-          purchaseListId: item.purchaseListId
-        });
+          quantity: item.quantity ?? 0,
+          purchaseListId: purchaseList.purchaseListId
+        }));
+  
+        return {
+          name: purchaseList.purchaseListName,
+          items,
+          newItemName: '',
+          newItemQuantity: null
+        };
       });
-
-      this.allLists = Object.entries(grouped).map(([name, items]) => ({
-        name,
-        items,
-        newItemName: '',
-        newItemQuantity: null
-      }));
+  
+      console.log('Formatted lists:', this.allLists);
     });
+  }
+  
+
+  shareList(list: ListWithItems) {
+    const username = list.shareWithUsername?.trim();
+    if (!username || !list.items.length || !list.items[0].purchaseListId) return;
+
+    const listId = list.items[0].purchaseListId;
+
+    this.purchaseListService.shareListWithUser(listId, username).subscribe({
+      next: (res) => alert(`Shared with ${username}`),
+      error: (err) => alert(`Failed to share list: ${err.error}`),
+    });
+
+    list.shareWithUsername = ''; // Clear input
   }
 
   createList() {
-    if (!this.newListName.trim()) return;
-
-    const existing = this.allLists.find(list => list.name === this.newListName);
-    if (existing) return; // prevent duplicate lists
-
-    this.allLists.push({
-      name: this.newListName,
-      items: [],
-      newItemName: '',
-      newItemQuantity: null
+    const trimmedName = this.newListName.trim();
+    if (!trimmedName) {
+      alert('Please provide a valid list name!');
+      return;
+    }
+  
+    this.purchaseListService.createEmptyList(this.userId, trimmedName).subscribe({
+      next: (res) => {
+        const newList: ListWithItems = {
+          name: res.purchaseListName,
+          items: [],
+          newItemName: '',
+          newItemQuantity: 1,
+          shareWithUsername: ''
+        };
+  
+        this.allLists.push(newList);
+        this.newListName = ''; // Reset input
+      },
+      error: (err) => {
+        console.error('Failed to create list:', err);
+        alert('Could not create the list. Please try again.');
+      }
     });
-
-    this.newListName = '';
   }
 
   addItemToList(list: ListWithItems) {
     const name = list.newItemName?.trim();
     const qty = list.newItemQuantity;
-
-    if (!name || !qty || qty < 1) return;
-
-    const item: PurchaseItem = {
-      purchaseListName: list.name,
-      itemName: name,
-      quantity: String(qty)
-    };
-
-    this.purchaseListService.addItem(item).subscribe(savedItem => {
-      list.items.push({
-        name: savedItem.itemName,
-        quantity: Number(savedItem.quantity),
-        purchaseListId: savedItem.purchaseListId
+  
+    if (!name || !qty || qty < 1) {
+      alert('Please provide a valid item name and quantity.');
+      return;
+    }
+  
+    const nameLower = name.toLowerCase();
+    const existingItem = list.items.find(
+      item => item.name && item.name.toLowerCase() === nameLower
+    );
+  
+    if (existingItem) {
+      existingItem.quantity += qty;
+      alert(`Item "${name}" already exists. Quantity updated.`);
+    } else {
+      const newItem: PurchaseItem = {
+        userId: this.userId,
+        purchaseListName: list.name,
+        itemName: name,
+        quantity: qty
+      };
+  
+      this.purchaseListService.createPurchaseList(newItem).subscribe({
+        next: (savedList) => {
+          // Expecting the full PurchaseList from backend — get last item
+          const lastItem = savedList.items[savedList.items.length - 1];
+  
+          if (!lastItem?.itemName || lastItem.quantity == null) {
+            alert('Something went wrong — received invalid item data.');
+            return;
+          }
+  
+          list.items.push({
+            name: lastItem.itemName,
+            quantity: Number(lastItem.quantity),
+            purchaseListId: savedList.purchaseListId
+          });
+  
+          list.newItemName = '';
+          list.newItemQuantity = null;
+        },
+        error: (err) => {
+          console.error('Failed to save item', err);
+          alert('Failed to save item. Please try again.');
+        }
       });
-
-      list.newItemName = '';
-      list.newItemQuantity = null;
-    });
-  }
+    }
+  }  
 
   removeItemFromList(list: ListWithItems, index: number) {
     const item = list.items[index];
     if (!item) return;
-  
+
+    // Check if the item has an associated purchaseListId (to remove from the server)
     if (item.purchaseListId) {
       this.purchaseListService.removeItem(item.purchaseListId).subscribe(() => {
-        // Remove the item from the list
         list.items.splice(index, 1);
-  
-        // If the list is now empty, remove the list from allLists
+        // Remove the list from allLists if it's empty
         if (list.items.length === 0) {
           const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
           if (listIndex !== -1) {
-            this.allLists.splice(listIndex, 1);  // Remove the list from allLists
+            this.allLists.splice(listIndex, 1);
           }
         }
       });
     } else {
+      // If no purchaseListId, just remove it locally
       list.items.splice(index, 1);
-  
-      // If the list is now empty, remove the list from allLists
       if (list.items.length === 0) {
         const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
         if (listIndex !== -1) {
-          this.allLists.splice(listIndex, 1);  // Remove the list from allLists
+          this.allLists.splice(listIndex, 1);
         }
       }
     }
-  }  
+  }
 }

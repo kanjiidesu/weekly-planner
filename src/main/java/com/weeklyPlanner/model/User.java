@@ -1,5 +1,6 @@
 package com.weeklyPlanner.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
@@ -16,8 +17,8 @@ public class User {
     private long userId;
 
     @ManyToMany(mappedBy = "users")
+    @JsonBackReference // Prevents recursion by marking this side of the relationship
     private List<PurchaseList> purchaseLists;
-
     @Column(name = "username", nullable = false)
     private String username;
 
@@ -32,6 +33,14 @@ public class User {
         super();
         this.username = username;
         this.password = password;
+    }
+
+    public List<PurchaseList> getPurchaseLists() {
+        return purchaseLists;
+    }
+
+    public void setPurchaseLists(List<PurchaseList> purchaseLists) {
+        this.purchaseLists = purchaseLists;
     }
 
     public long getUserId(){return userId;}

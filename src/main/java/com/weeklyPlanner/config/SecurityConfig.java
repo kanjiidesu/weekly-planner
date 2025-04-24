@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                                 .requestMatchers("/api/v1/users/**").authenticated()  // Protect user fetching and other API routes
+                                .requestMatchers("/api/v1/purchase-lists/**").authenticated()
                                 .anyRequest().permitAll()  // Allow other requests without authentication
                 )
                 .httpBasic(withDefaults());  // Enable HTTP Basic Authentication
