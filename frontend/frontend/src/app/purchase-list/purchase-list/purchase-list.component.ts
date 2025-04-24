@@ -6,6 +6,7 @@ import { AuthService } from '../../service/auth-guard.component';
 import { Router } from '@angular/router';
 
 interface DisplayItem {
+  id: number;
   name: string;
   quantity: number;
   purchaseListId?: number;
@@ -58,13 +59,14 @@ export class PurchaseListComponent implements OnInit {
     this.allLists = [];
     localStorage.removeItem('lastListName');
   }
-  
+
   loadAllLists() {
     this.purchaseListService.getUserPurchaseLists(this.userId).subscribe(purchaseLists => {
       console.log('Received purchase lists:', purchaseLists);
   
       this.allLists = purchaseLists.map((purchaseList: any) => {
         const items: DisplayItem[] = (purchaseList.items || []).map((item: any) => ({
+          id: item.id,                        // Added id field
           name: item.itemName,
           quantity: item.quantity ?? 0,
           purchaseListId: purchaseList.purchaseListId
@@ -160,6 +162,7 @@ export class PurchaseListComponent implements OnInit {
           }
   
           list.items.push({
+            id: lastItem.id,                  // Added id to the item
             name: lastItem.itemName,
             quantity: Number(lastItem.quantity),
             purchaseListId: savedList.purchaseListId
@@ -179,21 +182,28 @@ export class PurchaseListComponent implements OnInit {
   removeItemFromList(list: ListWithItems, index: number) {
     const item = list.items[index];
     if (!item) return;
-
-    // Check if the item has an associated purchaseListId (to remove from the server)
-    if (item.purchaseListId) {
-      this.purchaseListService.removeItem(item.purchaseListId).subscribe(() => {
+  
+    // Check if the item has an associated id (to remove from the server)
+    if (item.id) {
+      this.purchaseListService.removeItem(item.id).subscribe((response) => {
+        // Log response if necessary
+        console.log(response);  // "Item removed successfully"
+        
+        // Continue with removing the item locally
         list.items.splice(index, 1);
-        // Remove the list from allLists if it's empty
+  
+        // If no items left in the list, remove the list from the allLists array
         if (list.items.length === 0) {
           const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
           if (listIndex !== -1) {
             this.allLists.splice(listIndex, 1);
           }
         }
+      }, (error) => {
+        console.error('Error removing item:', error);
       });
     } else {
-      // If no purchaseListId, just remove it locally
+      // If no valid id, just remove it locally
       list.items.splice(index, 1);
       if (list.items.length === 0) {
         const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
@@ -202,5 +212,5 @@ export class PurchaseListComponent implements OnInit {
         }
       }
     }
-  }
+  }   
 }

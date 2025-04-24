@@ -8,10 +8,11 @@ import com.weeklyPlanner.repository.PurchaseItemRepository;
 import com.weeklyPlanner.repository.PurchaseListRepository;
 import com.weeklyPlanner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -94,17 +95,31 @@ public class PurchaseListController {
     @DeleteMapping("/item/{id}")
     @Transactional
     public ResponseEntity<String> removeItem(@PathVariable Long id) {
-        PurchaseItem item = purchaseItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase item not found"));
+        try {
+            // Try to find the PurchaseItem by ID
+            PurchaseItem item = purchaseItemRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Purchase item not found"));
 
-        // Optionally, you could remove the item from the related PurchaseList here if you want to clean up
-        PurchaseList list = item.getPurchaseList();
-        if (list != null) {
-            list.getItems().remove(item);
+            // Log the details of the item and its associated PurchaseList
+            System.out.println("Attempting to remove item: " + item.getItemName());
+            System.out.println("Associated PurchaseList: " + (item.getPurchaseList() != null ? item.getPurchaseList().getPurchaseListName() : "No PurchaseList"));
+
+            // If the item is associated with a PurchaseList, remove it from the list
+            PurchaseList list = item.getPurchaseList();
+            if (list != null) {
+                list.getItems().remove(item); // Remove from list
+            }
+
+            // Delete the item from the repository
+            purchaseItemRepository.delete(item);
+
+            return ResponseEntity.ok("Item removed successfully");
+        } catch (Exception e) {
+            // Log the exception stack trace for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error removing item: " + e.getMessage());
         }
-
-        purchaseItemRepository.delete(item);
-        return ResponseEntity.ok("Item removed successfully");
     }
 
     // Get all purchase lists of a specific user

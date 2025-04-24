@@ -14,6 +14,7 @@ export interface PurchaseListResponse {
   purchaseListId: number;
   purchaseListName: string;
   items: {
+    id: number;
     itemName: string;
     quantity: number;
   }[];
@@ -38,8 +39,8 @@ export class PurchaseListService {
     });
   }  
 
-  removeItem(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  removeItem(itemId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/item/${itemId}`, { responseType: 'text' });
   }
 
   getAllItems(): Observable<PurchaseItem[]> {
