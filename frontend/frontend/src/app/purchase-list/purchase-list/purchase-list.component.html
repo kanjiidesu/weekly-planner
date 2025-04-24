@@ -1,5 +1,5 @@
 <div class="container">
-  <h2 class="groceries">Grocery Purchase List</h2>
+  <h2 class="groceries">Shopping List</h2>
 
   <!-- Create New List -->
   <div class="list-form">
@@ -10,10 +10,13 @@
 
   <!-- All Lists -->
   <div *ngFor="let list of allLists" class="currentlist">
-    <!-- Delete List Icon (red cross) -->
+    <!-- List Header: Title + Remove Icon -->
     <div class="list-header">
-      <h3 class="list">{{ list.name }}</h3>
-      <span class="remove-list" (click)="removeWholeList(list)">✖</span>
+      <h3 class="list">
+        {{ list.name }}
+        <!-- Cross to remove the list -->
+        <span class="remove-list" (click)="removeWholeList(list)">✖</span>
+      </h3>
     </div>
 
     <!-- Add Items To This List -->
@@ -34,7 +37,7 @@
     <!-- Share List -->
     <div class="share-form">
       <input [(ngModel)]="list.shareWithUsername" placeholder="Share with username" />
-      <button (click)="shareList(list)" [disabled]="!list.shareWithUsername?.trim()">Share</button>
+      <button (click)="shareList(list)" [disabled]="!list.shareWithUsername?.trim()" style="margin: 20px;">Share</button>
     </div>
   </div>
 
