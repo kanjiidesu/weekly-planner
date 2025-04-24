@@ -10,7 +10,11 @@
 
   <!-- All Lists -->
   <div *ngFor="let list of allLists" class="currentlist">
-    <h3 class="list">{{ list.name }}</h3>
+    <!-- Delete List Icon (red cross) -->
+    <div class="list-header">
+      <h3 class="list">{{ list.name }}</h3>
+      <span class="remove-list" (click)="removeWholeList(list)">✖</span>
+    </div>
 
     <!-- Add Items To This List -->
     <div class="item-form">

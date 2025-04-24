@@ -43,6 +43,10 @@ export class PurchaseListService {
     return this.http.delete(`${this.apiUrl}/item/${itemId}`, { responseType: 'text' });
   }
 
+  deleteList(listId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${listId}`);
+  }
+
   getAllItems(): Observable<PurchaseItem[]> {
     return this.http.get<PurchaseItem[]>(this.apiUrl, { withCredentials: true });
   }

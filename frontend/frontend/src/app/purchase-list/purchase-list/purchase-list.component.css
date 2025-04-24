@@ -83,6 +83,14 @@ label.listname {
     margin-left: 15px;
   }
 
+  .remove-list {
+    color: #d9534f;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 15px;
+  }
+
   div.currentlist {
     margin-top: 100px;
   }

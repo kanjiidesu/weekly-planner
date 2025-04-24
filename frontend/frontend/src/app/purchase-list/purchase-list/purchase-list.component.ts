@@ -13,6 +13,7 @@ interface DisplayItem {
 }
 
 interface ListWithItems {
+  id: number;  // List ID should be from the backend as purchaseListId
   name: string;
   items: DisplayItem[];
   newItemName?: string;
@@ -43,7 +44,6 @@ export class PurchaseListComponent implements OnInit {
       this.clearPurchaseLists();
       this.router.navigate(['/login']);
     } else {
-      // Fetch user info before calling loadAllLists
       this.authService.getUser().subscribe((user) => {
         if (user) {
           this.userId = user.userId;
@@ -63,27 +63,27 @@ export class PurchaseListComponent implements OnInit {
   loadAllLists() {
     this.purchaseListService.getUserPurchaseLists(this.userId).subscribe(purchaseLists => {
       console.log('Received purchase lists:', purchaseLists);
-  
+
       this.allLists = purchaseLists.map((purchaseList: any) => {
         const items: DisplayItem[] = (purchaseList.items || []).map((item: any) => ({
-          id: item.id,                        // Added id field
+          id: item.id,  // Correctly use the item's 'id'
           name: item.itemName,
           quantity: item.quantity ?? 0,
-          purchaseListId: purchaseList.purchaseListId
+          purchaseListId: purchaseList.purchaseListId  // Use 'purchaseListId' for list association
         }));
-  
+
         return {
+          id: purchaseList.purchaseListId,  // Use 'purchaseListId' for the list ID
           name: purchaseList.purchaseListName,
           items,
           newItemName: '',
           newItemQuantity: null
         };
       });
-  
+
       console.log('Formatted lists:', this.allLists);
     });
   }
-  
 
   shareList(list: ListWithItems) {
     const username = list.shareWithUsername?.trim();
@@ -105,17 +105,18 @@ export class PurchaseListComponent implements OnInit {
       alert('Please provide a valid list name!');
       return;
     }
-  
+
     this.purchaseListService.createEmptyList(this.userId, trimmedName).subscribe({
       next: (res) => {
         const newList: ListWithItems = {
+          id: res.purchaseListId, // Use 'purchaseListId' here
           name: res.purchaseListName,
           items: [],
           newItemName: '',
           newItemQuantity: 1,
           shareWithUsername: ''
         };
-  
+
         this.allLists.push(newList);
         this.newListName = ''; // Reset input
       },
@@ -129,17 +130,17 @@ export class PurchaseListComponent implements OnInit {
   addItemToList(list: ListWithItems) {
     const name = list.newItemName?.trim();
     const qty = list.newItemQuantity;
-  
+
     if (!name || !qty || qty < 1) {
       alert('Please provide a valid item name and quantity.');
       return;
     }
-  
+
     const nameLower = name.toLowerCase();
     const existingItem = list.items.find(
       item => item.name && item.name.toLowerCase() === nameLower
     );
-  
+
     if (existingItem) {
       existingItem.quantity += qty;
       alert(`Item "${name}" already exists. Quantity updated.`);
@@ -150,24 +151,23 @@ export class PurchaseListComponent implements OnInit {
         itemName: name,
         quantity: qty
       };
-  
+
       this.purchaseListService.createPurchaseList(newItem).subscribe({
         next: (savedList) => {
-          // Expecting the full PurchaseList from backend — get last item
           const lastItem = savedList.items[savedList.items.length - 1];
-  
+
           if (!lastItem?.itemName || lastItem.quantity == null) {
             alert('Something went wrong — received invalid item data.');
             return;
           }
-  
+
           list.items.push({
-            id: lastItem.id,                  // Added id to the item
+            id: lastItem.id,                 
             name: lastItem.itemName,
             quantity: Number(lastItem.quantity),
             purchaseListId: savedList.purchaseListId
           });
-  
+
           list.newItemName = '';
           list.newItemQuantity = null;
         },
@@ -177,24 +177,20 @@ export class PurchaseListComponent implements OnInit {
         }
       });
     }
-  }  
+  }
 
   removeItemFromList(list: ListWithItems, index: number) {
     const item = list.items[index];
     if (!item) return;
-  
-    // Check if the item has an associated id (to remove from the server)
+
     if (item.id) {
       this.purchaseListService.removeItem(item.id).subscribe((response) => {
-        // Log response if necessary
-        console.log(response);  // "Item removed successfully"
-        
-        // Continue with removing the item locally
+        console.log(response);
+
         list.items.splice(index, 1);
-  
-        // If no items left in the list, remove the list from the allLists array
+
         if (list.items.length === 0) {
-          const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
+          const listIndex = this.allLists.findIndex(existingList => existingList.id === list.id);
           if (listIndex !== -1) {
             this.allLists.splice(listIndex, 1);
           }
@@ -203,14 +199,33 @@ export class PurchaseListComponent implements OnInit {
         console.error('Error removing item:', error);
       });
     } else {
-      // If no valid id, just remove it locally
       list.items.splice(index, 1);
       if (list.items.length === 0) {
-        const listIndex = this.allLists.findIndex(existingList => existingList.name === list.name);
+        const listIndex = this.allLists.findIndex(existingList => existingList.id === list.id);
         if (listIndex !== -1) {
           this.allLists.splice(listIndex, 1);
         }
       }
     }
-  }   
+  }
+
+  removeWholeList(list: ListWithItems) {
+    console.log("Trying to remove list", list.id);
+
+    if (!list.id) {
+      console.error('List does not have an ID!');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete the list "${list.name}" and all its items?`)) {
+      this.purchaseListService.deleteList(list.id).subscribe(() => {
+        const index = this.allLists.findIndex(l => l.id === list.id);
+        if (index !== -1) {
+          this.allLists.splice(index, 1);
+        }
+      }, error => {
+        console.error('Failed to delete list:', error);
+      });
+    }
+  }
 }

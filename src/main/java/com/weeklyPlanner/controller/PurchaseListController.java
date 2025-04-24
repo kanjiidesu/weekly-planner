@@ -100,27 +100,59 @@ public class PurchaseListController {
             PurchaseItem item = purchaseItemRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Purchase item not found"));
 
-            // Log the details of the item and its associated PurchaseList
-            System.out.println("Attempting to remove item: " + item.getItemName());
-            System.out.println("Associated PurchaseList: " + (item.getPurchaseList() != null ? item.getPurchaseList().getPurchaseListName() : "No PurchaseList"));
-
-            // If the item is associated with a PurchaseList, remove it from the list
             PurchaseList list = item.getPurchaseList();
+
+            // Log item and associated list
+            System.out.println("Attempting to remove item: " + item.getItemName());
             if (list != null) {
-                list.getItems().remove(item); // Remove from list
+                System.out.println("Associated PurchaseList: " + list.getPurchaseListName());
+                list.getItems().remove(item); // Remove item from list (in-memory)
             }
 
-            // Delete the item from the repository
+            // Delete the item from the database
             purchaseItemRepository.delete(item);
 
+            // If the list has no more items, delete the list
+            if (list != null && list.getItems().isEmpty()) {
+                // Detach from all users before deletion (break many-to-many relation)
+                list.getUsers().clear();
+                purchaseListRepository.delete(list);
+                System.out.println("PurchaseList '" + list.getPurchaseListName() + "' deleted as it became empty.");
+                return ResponseEntity.ok("Item removed and empty list deleted successfully");
+            }
+
             return ResponseEntity.ok("Item removed successfully");
+
         } catch (Exception e) {
-            // Log the exception stack trace for debugging
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error removing item: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/{listId}")
+    @Transactional
+    public ResponseEntity<String> deleteList(@PathVariable Long listId) {
+        Optional<PurchaseList> optionalList = purchaseListRepository.findById(listId);
+        if (optionalList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("List not found");
+        }
+
+        PurchaseList list = optionalList.get();
+
+        // Remove from all users (if many-to-many)
+        list.getUsers().clear();
+
+        // Delete all items first
+        purchaseItemRepository.deleteAll(list.getItems());
+
+        // Delete the list
+        list.getUsers().clear();
+        purchaseListRepository.delete(list);
+
+        return ResponseEntity.ok("List deleted successfully");
+    }
+
 
     // Get all purchase lists of a specific user
     @GetMapping("/user/{userId}")
