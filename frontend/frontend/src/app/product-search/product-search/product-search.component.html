@@ -1,0 +1,22 @@
+<div class="search-wrapper">
+    <div class="search-container">
+      <input
+        type="text"
+        [(ngModel)]="query"
+        placeholder="Søg efter produkter..."
+        (keyup.enter)="search()" />
+      <button (click)="search()">Søg</button>
+    </div>
+  </div>
+  
+  <div class="result-container">
+    <div *ngIf="loading" class="loading-text">Søger...</div>
+  
+    <ul *ngIf="offers.length > 0">
+      <li *ngFor="let offer of offers">
+        <strong>{{ offer.title }}</strong><br />
+        Pris: {{ offer.price }} kr.
+      </li>
+    </ul>
+  </div>
+  

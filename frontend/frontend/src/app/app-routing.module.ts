@@ -7,6 +7,7 @@ import { WeekplanComponent } from './weekplan/weekplan/weekplan.component';
 import { LogoutComponent } from './logout/logout/logout.component';
 import { AuthGuard } from './service/auth-guard.component';
 import { PurchaseListComponent } from './purchase-list/purchase-list/purchase-list.component';
+import { ProductSearchComponent } from './product-search/product-search/product-search.component';
 
 const routes: Routes = [
   { path: 'users', component: UserListComponent },
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LogoutComponent },
   { path: 'purchaselist', component: PurchaseListComponent},
+  { path: 'productsearch', component: ProductSearchComponent},
   { path: '', redirectTo: '/login', pathMatch: 'full' },  // Default route
 ];
 
