@@ -24,7 +24,9 @@ export interface PurchaseListResponse {
   providedIn: 'root'
 })
 export class PurchaseListService {
-  private apiUrl = 'http://localhost:8080/api/v1/purchase-list';
+  private apiUrl = 'http://86.52.114.30:8081/api/v1/purchase-list';
+  //private apiUrl = 'http://localhost:8080/api/v1/purchase-list';
+  //private apiUrl = 'http://localhost:8081/api/v1/purchase-list';
 
   constructor(private http: HttpClient) { }
 

@@ -7,21 +7,29 @@ import { User } from '../model/user';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/v1/users';  // Your Spring Boot API URL
-  private loginUrl = 'http://localhost:8080/api/v1/login'; // Login API URL
+  private apiUrl = 'http://86.52.114.30:8081/api/v1/users';
+  // private apiUrl = 'http://localhost:8080/api/v1/users'; not this
+  //private apiUrl = 'http://localhost:8081/api/v1/users';
+
+  private loginUrl = 'http://86.52.114.30:8081/api/v1/login';
+  //private loginUrl = 'http://localhost:8081/api/v1/login';
+  // private loginUrl = 'http://localhost:8080/api/v1/login'; not this
 
   constructor(private http: HttpClient) {}
 
   // Login method using Basic Authentication
   login(username: string, password: string): Observable<{ token: string; user: User }> {
-    return this.http.post<{ token: string; user: User }>(this.loginUrl, {
-      username,
-      password
-    }).pipe(
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+  
+    return this.http.post<{ token: string; user: User }>(
+      this.loginUrl,
+      { username, password },
+      { headers, withCredentials: true }
+    ).pipe(
       tap(response => {
         if (response.token) {
-          this.storeToken(response.token);  // Store the token
-          this.storeUser(response.user);    // Store the user details
+          this.storeToken(response.token);
+          this.storeUser(response.user);
         }
       })
     );
@@ -51,7 +59,18 @@ export class UserService {
 
   // Create a new user (no authentication required)
   createUser(user: User): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  
+    return this.http.post<User>(
+      this.apiUrl,
+      user, // <-- no JSON.stringify()
+      {
+        headers,
+        withCredentials: true
+      }
+    );
   }
 
   // Update an existing user (requires authentication)

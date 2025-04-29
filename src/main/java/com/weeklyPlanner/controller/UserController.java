@@ -1,6 +1,7 @@
 package com.weeklyPlanner.controller;
 
 import com.weeklyPlanner.config.JwtTokenUtil;
+import com.weeklyPlanner.dto.UserDto;
 import com.weeklyPlanner.exception.ResourceNotFoundException;
 import com.weeklyPlanner.model.Day;
 import com.weeklyPlanner.model.LoginRequest;
@@ -8,6 +9,7 @@ import com.weeklyPlanner.model.User;
 import com.weeklyPlanner.repository.DayRepository;
 import com.weeklyPlanner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,11 +49,18 @@ public class UserController {
     }
 
     // Create user rest api
-    @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
+    @PostMapping(path = "/users", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public User createUser(@RequestBody UserDto userDto, @RequestHeader Map<String, String> headers) {
+        // Log all headers for debugging
+        System.out.println("=== Incoming Request Headers ===");
+        headers.forEach((key, value) -> System.out.println(key + ": " + value));
+        System.out.println("================================");
+
         // Hash the password before saving
-        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);  // Set the hashed password
+        String encodedPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
+        // user.setPassword(encodedPassword);  // Set the hashed password
+
+        User user = new User(userDto.getUsername(), encodedPassword);
 
         // Save user first to generate ID
         User savedUser = userRepository.save(user);

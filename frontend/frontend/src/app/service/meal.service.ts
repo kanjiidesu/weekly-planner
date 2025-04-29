@@ -8,7 +8,9 @@ import { Day } from '../model/day';
   providedIn: 'root'
 })
 export class MealService {
-  private apiUrl = 'http://localhost:8080/api/v1/meals';  // Your Spring Boot API URL
+  private apiUrl = 'http://86.52.114.30:8081/api/v1/meals';
+  //private apiUrl = 'http://localhost:8080/api/v1/meals';  // Your Spring Boot API URL
+  //private apiUrl = 'http://localhost:8081/api/v1/meals';
 
   constructor(private http: HttpClient) {}
 
@@ -28,6 +30,7 @@ export class MealService {
   }
 
   deleteMeal(mealId: number): Observable<void> {
-    return this.http.delete<void>(`http://localhost:8080/api/v1/meals/${mealId}`);
+    return this.http.delete<void>(`http://86.52.114.30:8081/api/v1/meals/${mealId}`);
+    //return this.http.delete<void>(`http://localhost:8080/api/v1/meals/${mealId}`);
   }
 }

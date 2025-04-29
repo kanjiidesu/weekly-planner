@@ -14,6 +14,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.http.HttpMethod;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -49,6 +52,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                                 .requestMatchers("/api/v1/users/**").authenticated()  // Protect user fetching and other API routes
                                 .requestMatchers("/api/v1/purchase-lists/**").authenticated()
@@ -62,10 +66,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:4200");  // Allow Angular frontend to access
-        configuration.addAllowedMethod("*");  // Allow all HTTP methods (GET, POST, etc.)
-        configuration.addAllowedHeader("*");  // Allow all headers
-        configuration.setAllowCredentials(true);  // Allow credentials (cookies, auth headers)
+        configuration.setAllowedOrigins(List.of("http://86.52.114.30:8082")); // or use "*"
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With", "Accept"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);  // Apply CORS to API routes
