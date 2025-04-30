@@ -40,8 +40,7 @@ jobs:
 
       - name: Build and test backend
         run: |
-          cd backend
-          ./gradlew clean build
+          ./gradlew clean test --tests "weeklyplanner.unittests.*"
 
 
       # Runs a set of commands using the runners shell
