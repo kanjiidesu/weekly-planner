@@ -42,13 +42,14 @@ dependencies {
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
 	// Test dependencies
+	testImplementation 'org.mockito:mockito-core:5.0.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0'
+
+	// Spring Boot testing (includes JUnit 5 and other useful test libraries)
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// Optional: JUnit Platform Launcher (typically included in spring-boot-starter-test)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// Exclude the older JUnit Vintage engine if you want only JUnit 5
-	testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.2'
 }
 
 tasks.named('test') {
