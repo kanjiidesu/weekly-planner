@@ -3,6 +3,7 @@ package com.weeklyPlanner.unittests;
 import com.weeklyPlanner.config.JwtTokenUtil;
 import com.weeklyPlanner.controller.UserController;
 import com.weeklyPlanner.controller.UserController.JwtResponse;
+import com.weeklyPlanner.dto.UserDto;
 import com.weeklyPlanner.exception.ResourceNotFoundException;
 import com.weeklyPlanner.model.LoginRequest;
 import com.weeklyPlanner.model.User;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,27 +61,26 @@ class UserControllerUnitTest {
     // Testcase that will verify that createUser works as it should (sunshine scenario)
     @Test
     void testCreateUser() {
-        //create the neccessary user info
-        User inputUser = new User();
-        inputUser.setUsername("john");
-        inputUser.setPassword("pass");
+        // Create the necessary user info using the constructor
+        UserDto inputUserDto = new UserDto("john", "pass");
 
         User savedUser = new User();
         savedUser.setUsername("john");
 
-        // mocking the encoding of the password
+        // Mock the encoding of the password
         when(passwordEncoder.encode("pass")).thenReturn("hashedPass");
+
         // Mock the save method of the user repository
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        // call the real method to create the user
-        User result = userController.createUser(inputUser);
+        // Call the real method to create the user, passing dummy headers
+        User result = userController.createUser(inputUserDto, new HashMap<>());
 
-        // verify  that the user was saved with the right username
+        // Verify that the user was saved with the right username
         assertEquals("john", result.getUsername());
 
-        // verify that the dayrepository was called 7 times because it will create the 7 days for the user
-        verify(dayRepository, times(7)).save(any());  // 7 days created
+        // Verify that the dayRepository was called 7 times
+        verify(dayRepository, times(7)).save(any());
     }
 
     @Test
