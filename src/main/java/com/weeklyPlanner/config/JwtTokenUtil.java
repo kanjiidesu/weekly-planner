@@ -18,11 +18,13 @@ public class JwtTokenUtil {
 
     // Generate JWT token based on the user details
     public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        // Generate a secure key for HS512
+        // Extract the authenticated user
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // Generate a secure key with HS512 algorithm
         Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);  // Automatically generates a secure key with 512 bits
 
+        // Build the token - get a random key every time they login
         String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())

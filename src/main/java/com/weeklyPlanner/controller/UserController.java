@@ -30,7 +30,7 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired  // Autowire PasswordEncoder
+    @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
@@ -58,14 +58,13 @@ public class UserController {
 
         // Hash the password before saving
         String encodedPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
-        // user.setPassword(encodedPassword);  // Set the hashed password
 
         User user = new User(userDto.getUsername(), encodedPassword);
 
         // Save user first to generate ID
         User savedUser = userRepository.save(user);
 
-        // Automatically create 7 weekdays linked to the saved user
+        // Create 7 weekdays linked to the saved user
         String[] weekdays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
         for (String dayName : weekdays) {
             Day day = new Day();
@@ -77,7 +76,6 @@ public class UserController {
         return savedUser;
     }
 
-    // In your controller
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -90,7 +88,6 @@ public class UserController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Instead of casting, directly use the principal (which should be an instance of UserDetails)
             Object principal = authentication.getPrincipal();
 
             if (principal instanceof UserDetails) {
@@ -109,7 +106,6 @@ public class UserController {
                 // Return both token and user details
                 return ResponseEntity.ok(new JwtResponse(jwtToken, user));
             } else {
-                // If the principal is not of type UserDetails, return a failure response
                 return ResponseEntity.status(401).body("Authentication failed: Principal is not a valid UserDetails instance.");
             }
 
@@ -151,10 +147,10 @@ public class UserController {
         // If password is being updated, hash it
         if (userInfo.getPassword() != null && !userInfo.getPassword().isEmpty()) {
             String encodedPassword = bCryptPasswordEncoder.encode(userInfo.getPassword());
-            user.setPassword(encodedPassword);  // Set the hashed password
+            user.setPassword(encodedPassword);
         }
 
-        user.setUsername(userInfo.getUsername());  // Update username
+        user.setUsername(userInfo.getUsername());
 
         User updatedUser = userRepository.save(user);
         return ResponseEntity.ok(updatedUser);

@@ -60,7 +60,6 @@ public class Meal {
     }
 
     public void setDayId(long dayId) {
-        // Optional: If you want to set dayId directly without fetching Day object
-        // you can manually set the day object based on the dayId (but you may want to keep it consistent with the database)
+
     }
 }

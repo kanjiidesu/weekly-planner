@@ -11,6 +11,6 @@ public class HelloController {
     // http://localhost:8080/hello
     // website for going in
     public String helloWorld() {
-        return "TEEEEEST";
+        return "";
     }
 }

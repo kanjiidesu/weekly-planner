@@ -9,7 +9,7 @@ public class MealMapper {
     public static MealDto toDto(Meal meal) {
         return new MealDto(
                 meal.getMealId(),
-                meal.getDayId(),  // We use your custom getDayId() here
+                meal.getDayId(),
                 meal.getType(),
                 meal.getDescription()
         );
@@ -18,7 +18,7 @@ public class MealMapper {
     public static Meal toEntity(MealDto dto, Day day) {
         Meal meal = new Meal();
         meal.setMealId(dto.getMealId());
-        meal.setDay(day); // Day should be fetched from DB or passed in
+        meal.setDay(day);
         meal.setType(dto.getType());
         meal.setDescription(dto.getDescription());
         return meal;

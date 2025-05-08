@@ -60,8 +60,7 @@ public class PurchaseListController {
         // Create a new PurchaseItem and add it to the PurchaseList
         PurchaseItem item = new PurchaseItem(request.getItemName(), request.getQuantity());
 
-        // IMPORTANT: Use the addItem() method to link the PurchaseItem to the PurchaseList
-        purchaseList.addItem(item);  // Adds the item and sets the relationship
+        purchaseList.addItem(item);
 
         // Save the PurchaseItem and PurchaseList (CascadeType.ALL handles it)
         purchaseItemRepository.save(item);   // Saving the PurchaseItem explicitly (though cascade should handle it)
